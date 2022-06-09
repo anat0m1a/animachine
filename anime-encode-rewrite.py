@@ -57,6 +57,21 @@ variable in the script.\n""")
                 break
             else:
                 continue
+        
+        print('\nSelect your preset preference:\n\n'\
+        +  'A. Settings to rule them all:\n\n'\
+        + f'   1. {self.encodeOpts[0]} (higher bitrate)\n'\
+        + f'   2. {self.encodeOpts[1]} (more compression)\n\n'\
+        +  'B. Flat, slow anime (slice of life, everything is well-lit):\n\n'\
+        + f'   3. {self.encodeOpts[2]}\n\n'\
+        +  'C. Some dark scenes, some battle scenes (shonen, historical, etc.):\n\n'\
+        + f'   4. {self.encodeOpts[3]} (motion + fancy & detailed FX)\n'\
+        + f'   5. {self.encodeOpts[4]} (non-complex, motion only alternative)\n\n'\
+        +  'D. Movie-tier dark scene, complex grain/detail, and BDs with dynamic-grain\n'\
+        +  '   injected debanding:\n\n'\
+        + f'   6. {self.encodeOpts[5]}\n\n'\
+        +  'E. I have infinite storage, a supercomputer, and I want details:\n\n'\
+        + f'   7. {self.encodeOpts[6]}\n')
 
         # Get basic input from the user about the content
         while True:
