@@ -3,7 +3,7 @@ import os
 import subprocess
 from subprocess import check_output
 import re
-import shlex
+
 
 srcDir = '/Users/lizzy/Movies/Sailor_Moon__DVD_Hi10P_FLAC___Hark0n_/'
 destDir = '/Users/lizzy/Movies/Sailor_Moon__DVD_Hi10P_FLAC___Hark0n_/Converted/'
