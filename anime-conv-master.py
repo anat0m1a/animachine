@@ -27,13 +27,15 @@ def main():
 + '\_____/|_|/___|/___| \__, |   |___/ \_| |_/|_| |_||_||_| |_| |_| \___|\n'\
 + '                      __/ |                                           \n'\
 + '                     |___/                                            \n')
-    print('Welcome to Lizzy\'s portable x265 anime encoding convenience script.\n\n'\
-          + 'Before running, please ensure a version of ffmpeg with x265 is\n'\
-          + 'accessible in your system path. Please also ensure you have changed the\n'\
-          + 'destination directory before running the script.\n\n'\
-          + 'Additionally, this script will pass the current working directory\n'\
-          + 'into ffmpeg. If you do not want it to do this, set the srcDir\n'\
-          + 'variable in the script.\n')
+    print("""Welcome to Lizzy\'s portable x265 anime encoding convenience script.
+
+Before running, please ensure a version of ffmpeg with x265 is
+accessible in your system path. Please also ensure you have changed the
+destination directory before running the script.
+
+Additionally, this script will pass the current working directory
+into ffmpeg. If you do not want it to do this, set the srcDir
+variable in the script.\n""")
           
     if (destDir == ''):
         print('No destination directory detected!! Exiting...')
@@ -88,10 +90,10 @@ def main():
             continue
     # ==============================================================================
     print(srcDir + filename)
-    cmd = 'mediainfo "--Output=Text;%ID%: %Format%$if(%Language/String%, SUBTITLE: '\
+    mediaCommand = 'mediainfo "--Output=Text;%ID%: %Format%$if(%Language/String%, SUBTITLE: '\
             + '.............. %Language/String% - %Title%)\\r\\n" ' + filename
     
-    out = str(subprocess.check_output(cmd, shell=True)).replace("\\r", "").strip('b\'')
+    out = str(subprocess.run(['mediainfo', '\"--Output=Text;%ID%:', '%Format%$if(%Language/String%,', 'SUBTITLE:', '..............', '%Language/String%', '-', '%Title%)\\r\\n\"', filename])).replace("\\r", "").strip('b\'')
     out = clean(out)
     for i in range(len(out)):
         print(out[i])
