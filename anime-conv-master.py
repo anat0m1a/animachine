@@ -1,10 +1,12 @@
+from cmd import Cmd
 import os
 import subprocess
 from subprocess import check_output
 import re
+import shlex
 
-srcDir = '.\\'
-destDir = '.\\Converted\\'
+srcDir = '/Users/lizzy/Movies/Sailor_Moon__DVD_Hi10P_FLAC___Hark0n_/'
+destDir = '/Users/lizzy/Movies/Sailor_Moon__DVD_Hi10P_FLAC___Hark0n_/Converted/'
 
 encodeOpts = ['crf=19:limit-sao:bframes=8:psy-rd=1:aq-mode=3','crf=20:bframes=8:psy-rd=1:aq-mode=3',\
         'crf=19:bframes=8:psy-rd=1:aq-mode=3:aq-strength=0.8:deblock=1,1',\
@@ -71,24 +73,25 @@ def main():
     
     NUM = getNumber("\nPlease enter an episode to start at (affects naming only): ", 0, 0)
     
-    #clean files before beginning work. This is necessary for mediainfo to behave correctly
-    for file in os.listdir(os.getcwd()):
+    # Clean files before beginning work. This is necessary for mediainfo to behave correctly
+    for file in os.listdir(srcDir):
         if file.endswith(srcExt):
-            os.rename(file, getValidFilenames(file))
+            os.rename(srcDir + file, srcDir + getValidFilenames(file))
 
 
     filename = ''
-    for file in os.listdir(os.getcwd()):
+    for file in os.listdir(srcDir):
         if file.endswith(srcExt):
             filename = file
             break
         else:
             continue
     # ==============================================================================
-
-    command = 'mediainfo "--Output=Text;%ID%: %Format%$if(%Language/String%, SUBTITLE: '\
+    print(srcDir + filename)
+    cmd = 'mediainfo "--Output=Text;%ID%: %Format%$if(%Language/String%, SUBTITLE: '\
             + '.............. %Language/String% - %Title%)\\r\\n" ' + filename
-    out = str(check_output(command)).replace("\\r", "").strip('b\'')
+    
+    out = str(subprocess.check_output(cmd, shell=True)).replace("\\r", "").strip('b\'')
     out = clean(out)
     for i in range(len(out)):
         print(out[i])
@@ -219,7 +222,7 @@ def getNumber(message, min, max):
 def checkSubs(filename, language, title, subindex):
     command = 'mediainfo "--Output=Text;%ID%: %Format%$if(%Language/String%, SUBTITLE: '\
             + '.............. %Language/String% - %Title%)\\r\\n" ' + filename
-    out = str(check_output(command)).replace("\\r", "").strip('b\'')
+    out = str(subprocess.Popen(command)).replace("\\r", "").strip('b\'')
     out = clean(out)
     
     subindex = 0
