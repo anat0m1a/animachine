@@ -1,6 +1,5 @@
 from pymediainfo import MediaInfo
 import subprocess
-import pathlib
 import signal
 import re
 import os
@@ -8,9 +7,10 @@ import os
 class AnimeEncoder:
     def __init__(self):
         # Configuration Options
-        self.srcDir = ''
+        self.srcDir = '/Users/lizzy/Movies/Sailor_Moon/'
         self.destDir = os.path.join(self.srcDir, 'Converted/')
-        self.encodeOpts = ['crf=19:limit-sao:bframes=8:psy-rd=1:aq-mode=3','crf=20:bframes=8:psy-rd=1:aq-mode=3',\
+        self.encodeOpts = ['crf=19:limit-sao:bframes=8:psy-rd=1:aq-mode=3',\
+                           'crf=20:bframes=8:psy-rd=1:aq-mode=3',\
                            'crf=19:bframes=8:psy-rd=1:aq-mode=3:aq-strength=0.8:deblock=1,1',\
                            'crf=19:limit-sao:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8',\
                            'crf=19:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8',\
@@ -93,7 +93,7 @@ variable in the script.\n""")
         if self.srcExt == '':
             self.srcExt = getContainer("\nPlease specify input container (mkv, mp4, etc.): ")
 
-        if self.srcExt == '':
+        if self.destExt == '':
             self.destExt = getContainer('\nPlease enter an output container: ')
 
         media_info = MediaInfo.parse(self.srcDir + filename)
@@ -149,31 +149,27 @@ variable in the script.\n""")
                 OUTNAME = S + E
                 self.checkSubs(file)
                 file = self.srcDir + file
-                if self.subtype == 1:
-                    subprocess.call(['ffmpeg', *(['-t', '00:01:00'] if onemin else []), '-i', file, \
-                                        '-c:v', 'libx265', '-x265-params', self.encodeOpts[self.preset], '-preset', 'slow', \
-                                        '-vf', f'subtitles={file}:stream_index={str(self.subindex-1)}', \
-                                        '-c:a', 'libopus', '-b:a', '96k', '-ac', '2', '-map', \
-                                        '0:v:0', '-map', '0:a:'+str(self.audioindex), str(self.destDir) + OUTNAME + '.' \
-                                        + self.destExt])
-                    if onemin == True:
-                        break
-                elif self.subtype == 2:
-                    subprocess.call(['ffmpeg', *(['-t', '00:01:00'] if onemin else []), '-i', file, '-c:v', 'libx265', \
-                                        '-x265-params', self.encodeOpts[self.preset], '-preset', 'slow', '-filter_complex', \
-                                        '[0:v][0:s:'+str(self.subindex-1)+']overlay[v]', '-map', '[v]', '-c:a', \
-                                        'libopus', '-b:a', '96K', '-ac', '2', '-map', \
-                                        '0:a:'+str(self.audioindex), str(self.destDir) + OUTNAME + '.' + self.destExt])
-                    if onemin == True:
-                        break
-                else:
-                    subprocess.call(['ffmpeg', *(['-t', '00:01:00'] if onemin else []), '-i', file, \
-                                        '-c:v', 'libx265', '-x265-params', self.encodeOpts[self.preset], '-preset', 'slow', \
-                                        '-c:a', 'libopus', '-b:a', '96K', '-ac', '2', '-map', '0:v', \
-                                        '-map', '0:a:'+str(self.audioindex), str(self.destDir) + OUTNAME + '.' + self.destExt])
-                    if onemin == True:
-                        break
-                NUM +=1
+
+                # Defines the two valid sub options (covers ASS, PGS and UTF-8)
+                subOptions = [{'-vf', f'subtitles={file}:stream_index= \
+                              {str(self.subindex-1)}', '-map', '0:v:0'}, \
+                              {f'-filter_complex [0:v][0:s:{str(self.subindex-1)} \
+                              ]overlay[v] -map [v]'}]
+
+                # Call ffmpeg and determine:
+                #   1. if onemin is true for test encode
+                #   2. which subtitle command to use and select from above
+                subprocess.call(['ffmpeg', *(['-t', '00:01:00'] if onemin else []), \
+                                 '-i', file, '-c:v', 'libx265', '-x265-params', \
+                                 self.encodeOpts[self.preset], '-preset', 'slow', \
+                                 *([subOptions[self.subtype]] if self.subtype == 1 else \
+                                 ([subOptions[self.subtype]] if self.subtype == 2 else [])), \
+                                 '-c:a', 'libopus', '-b:a', '96k', '-ac', '2', '-map', \
+                                 f'0:a:{str(self.audioindex)}', f'{str(self.destDir)} \
+                                 {OUTNAME}.{self.destExt}'])
+                if onemin == True:
+                    break
+                NUM += 1
 
     def checkSubs(self, file):
         self.tempList = []
