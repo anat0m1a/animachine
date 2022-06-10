@@ -90,9 +90,11 @@ variable in the script.\n""")
         
         self.NUM = getNum("\nPlease enter an episode to start at (affects naming only): ")
 
-        self.srcExt = getContainer("\nPlease specify input container (mkv, mp4, etc.): ")
+        if self.srcExt == '':
+            self.srcExt = getContainer("\nPlease specify input container (mkv, mp4, etc.): ")
 
-        self.destExt = getContainer('\nPlease enter an output container: ')
+        if self.srcExt == '':
+            self.destExt = getContainer('\nPlease enter an output container: ')
 
         media_info = MediaInfo.parse(self.srcDir + filename)
         self.media_info = MediaInfo.to_data(media_info)
