@@ -8,7 +8,7 @@ import os
 class AnimeEncoder:
     def __init__(self):
         # Configuration Options
-        self.srcDir = '/home15/keimpx/Downloads/Sailor_Moon_COMPLETE__ITA_Dynit_DVD__480p__Dual_Audio_/Sailor_Moon__DVD_Hi10P_FLAC___Hark0n_/'
+        self.srcDir = ''
         self.destDir = os.path.join(self.srcDir, 'Converted/')
         self.encodeOpts = ['crf=19:limit-sao:bframes=8:psy-rd=1:aq-mode=3','crf=20:bframes=8:psy-rd=1:aq-mode=3',\
                            'crf=19:bframes=8:psy-rd=1:aq-mode=3:aq-strength=0.8:deblock=1,1',\
