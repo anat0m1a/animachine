@@ -1,13 +1,14 @@
 from pymediainfo import MediaInfo
 import subprocess
 import pathlib
+import signal
 import re
 import os
 
 class AnimeEncoder:
     def __init__(self):
         # Configuration Options
-        self.srcDir = '/Users/lizzy/Movies/Sailor_Moon/'
+        self.srcDir = '/home15/keimpx/Downloads/Sailor_Moon_COMPLETE__ITA_Dynit_DVD__480p__Dual_Audio_/Sailor_Moon__DVD_Hi10P_FLAC___Hark0n_/'
         self.destDir = os.path.join(self.srcDir, 'Converted/')
         self.encodeOpts = ['crf=19:limit-sao:bframes=8:psy-rd=1:aq-mode=3','crf=20:bframes=8:psy-rd=1:aq-mode=3',\
                            'crf=19:bframes=8:psy-rd=1:aq-mode=3:aq-strength=0.8:deblock=1,1',\
@@ -22,7 +23,12 @@ class AnimeEncoder:
         self.destExt = ''
         self.NUM = 1
         self.tempList = []
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
 
+    def __enter__(self):
+        return self
 
     def run(self):
 
@@ -129,26 +135,6 @@ variable in the script.\n""")
             except ValueError:
                 print("Please input an integer.")
 
-    def checkSubs(self, file):
-        self.tempList = []
-        for tempTrack in self.media_info['tracks']:
-            if tempTrack['track_type'] == 'Text':
-                self.tempList.append(tempTrack) 
-                if self.language == tempTrack['language'] or self.title == tempTrack['title']:
-                    self.subindex = len(self.tempList)
-
-        """to be updated in the future - this essentially prefers the title of the subs over the
-        language to ensure that regardless of the index of the subs, the most optimal subtitle
-        track is chosen based on the initial chosen index"""
-
-        if self.tempList[self.subindex-1]['format'] in {'ASS', 'UTF-8'}:
-            self.subtype = 1
-        elif self.tempList[self.subindex-1]['format'] == 'PGS':
-            self.subtype = 2
-        else:
-            print('error')
-
-    def encode(self):
         OUTNAME = ''
         onemin = False
         test = str(input('1 min dummy encode? [Y]/n '))
@@ -187,6 +173,25 @@ variable in the script.\n""")
                         break
                 NUM +=1
 
+    def checkSubs(self, file):
+        self.tempList = []
+        for tempTrack in self.media_info['tracks']:
+            if tempTrack['track_type'] == 'Text':
+                self.tempList.append(tempTrack) 
+                if self.language == tempTrack['language'] or self.title == tempTrack['title']:
+                    self.subindex = len(self.tempList)
+
+        """to be updated in the future - this essentially prefers the title of the subs over the
+        language to ensure that regardless of the index of the subs, the most optimal subtitle
+        track is chosen based on the initial chosen index"""
+
+        if self.tempList[self.subindex-1]['format'] in {'ASS', 'UTF-8'}:
+            self.subtype = 1
+        elif self.tempList[self.subindex-1]['format'] == 'PGS':
+            self.subtype = 2
+        else:
+            print('error')
+
 
 def getContainer(m):
     valCont = ['mkv', 'mp4', 'mov', 'avi', 'webm', 'mpg', 'wmv', 'm4v', 'm2ts']
@@ -214,9 +219,15 @@ def getNum(m):
             return num
 
 def main():
-    anime_encoder = AnimeEncoder()
-    anime_encoder.run()
-    anime_encoder.encode()
+    try:
+        with AnimeEncoder() as encoder:
+            encoder.run()
+    except KeyboardInterrupt:
+        print('\nExiting.')
+        return signal.SIGINT + 128 # POSIX Standard
+    except Exception as err:
+        print('Unexpected exception:', err)
+        return 1
 
 if __name__ == "__main__":
     main()
