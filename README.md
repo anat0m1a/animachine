@@ -1,4 +1,4 @@
-# lizzyanime
+# Lizzy's Anime
 
 Welcome to Lizzy's portable x265 anime encoding convenience script. 
 Before running, please ensure a version of ffmpeg with x265 is
