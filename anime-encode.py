@@ -19,7 +19,8 @@ class AnimeEncoder:
                            'crf=19:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8',\
                            'crf=16:no-sao:bframes=8:psy-rd=1.5:psy-rdoq=2:aq-mode=3:ref=6',\
                            'crf=14:preset=veryslow:no-sao:no-strong-intra-smoothing:bframes=8:'\
-                           + 'psy-rd=2:psy-rdoq=1:aq-mode=3:deblock=-1,-1:ref=6']
+                           + 'psy-rd=2:psy-rdoq=1:aq-mode=3:deblock=-1,-1:ref=6',\
+                           'crf=19']
         self.preset = ''
         self.SNUM = 1
         self.srcExt = ''
@@ -80,12 +81,14 @@ variable in the script.\n""")
         +  '   injected debanding:\n\n'\
         + f'   6. {self.encodeOpts[5]}\n\n'\
         +  'E. I have infinite storage, a supercomputer, and I want details:\n\n'\
-        + f'   7. {self.encodeOpts[6]}\n')
+        + f'   7. {self.encodeOpts[6]}\n\n'
+        +  'F. Generic TV/Movie Preset:\n\n'\
+        + f'   8. {self.encodeOpts[7]}\n')
 
         # Get basic input from the user about the content
         while True:
-            self.preset = int(input('Please select [1-7]: '))
-            if 1 <= self.preset <= 7:
+            self.preset = int(input(f'Please select [1-{len(self.encodeOpts)}]: ')) - 1
+            if 1 <= self.preset <= len(self.encodeOpts):
                 break
             print('try again.')
 
