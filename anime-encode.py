@@ -1,6 +1,9 @@
+from progress import ProgressNotifier
 from pymediainfo import MediaInfo
+from tqdm import tqdm
 import subprocess
 import signal
+import sys
 import re
 import os
 
@@ -151,25 +154,34 @@ variable in the script.\n""")
                 file = self.srcDir + file
 
                 # Defines the two valid sub options (covers ASS, PGS and UTF-8)
-                subOptions = [{'-vf', f'subtitles={file}:stream_index= \
-                              {str(self.subindex-1)}', '-map', '0:v:0'}, \
-                              {f'-filter_complex [0:v][0:s:{str(self.subindex-1)} \
-                              ]overlay[v] -map [v]'}]
 
                 # Call ffmpeg and determine:
                 #   1. if onemin is true for test encode
                 #   2. which subtitle command to use and select from above
-                subprocess.call(['ffmpeg', *(['-t', '00:01:00'] if onemin else []), \
-                                 '-i', file, '-c:v', 'libx265', '-x265-params', \
-                                 self.encodeOpts[self.preset], '-preset', 'slow', \
-                                 *([subOptions[self.subtype]] if self.subtype == 1 else \
-                                 ([subOptions[self.subtype]] if self.subtype == 2 else [])), \
-                                 '-c:a', 'libopus', '-b:a', '96k', '-ac', '2', '-map', \
-                                 f'0:a:{str(self.audioindex)}', f'{str(self.destDir)} \
-                                 {OUTNAME}.{self.destExt}'])
-                if onemin == True:
-                    break
-                NUM += 1
+                
+                with ProgressNotifier (file=sys.stderr, encoding=None, tqdm=tqdm, \
+                                       source=OUTNAME) as notifier:
+
+                    p = subprocess.Popen(['ffmpeg', *(['-t', '00:01:00'] if onemin else []), \
+                                    '-i', file, '-c:v', 'libx265', '-x265-params', \
+                                    self.encodeOpts[self.preset], '-preset', 'slow', \
+                                    *(['-vf', f'subtitles={file}:stream_index='\
+                                    + str(self.subindex-1), '-map', '0:v:0'] \
+                                    if self.subtype == 1 else (['-filter_complex', \
+                                    f'[0:v][0:s:{str(self.subindex-1)}]overlay[v]', \
+                                    'map', '[v]'] if self.subtype == 2 else [])), \
+                                    '-c:a', 'libopus', '-b:a', '96k', '-ac', '2', '-map', \
+                                    f'0:a:{str(self.audioindex)}', f'{str(self.destDir)}' \
+                                    + f'{OUTNAME}.{self.destExt}'], stderr=subprocess.PIPE)
+                    while True:
+                        out = p.stderr.read(1)
+                        if out == b"" and p.poll() != None:
+                            break
+                        if out != b"":
+                            notifier(out)
+                    if onemin == True:
+                        break
+                    NUM += 1
 
     def checkSubs(self, file):
         self.tempList = []
@@ -223,9 +235,9 @@ def main():
     except KeyboardInterrupt:
         print('\nExiting.')
         return signal.SIGINT + 128 # POSIX Standard
-    except Exception as err:
+    """except Exception as err:
         print('Unexpected exception:', err)
-        return 1
+        return 1"""
 
 if __name__ == "__main__":
     main()
