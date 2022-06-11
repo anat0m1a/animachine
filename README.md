@@ -9,7 +9,7 @@ especially in large batches, sometimes things might go awry during
 batch processing. This script tries to anticipate a sudden change of 
 subtitle track by preferring title tag first, and language second. 
 
-Welcome to Lizzy's portable x265 anime encoding convenience script. 
+Welcome to Lizzy's portable (x265/HEVC) anime encoding convenience script. 
 This was created after reading Kokomin's writeup: "Anime on a Technical Level - 
 Anime Encoding Guide for x265 (HEVC) & AAC/OPUS (and Why to Never Use FLAC)", which
 can be found [here](https://kokomins.wordpress.com/2019/10/10/anime-encoding-guide-for-x265-and-why-to-never-use-flac/).
