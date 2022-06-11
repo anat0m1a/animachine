@@ -76,18 +76,13 @@ can be found here:
 https://kokomins.wordpress.com/2019/10/10/anime-encoding-guide-for-x265-and-why-to-never-use-flac/
 
 Before running, please ensure a version of ffmpeg with x265 is
-accessible in your system path. Please also ensure you have changed the
-destination directory before running the script.
+accessible in your system path.
 
 *** potentilly destructive actions ahead ***
 
 This script will sanitise the filenames in the source directory
 by replacing spaces and terminal-unfriendly characters with underscores
-or by removing them entirely. If you do not want this, exit now.
-
-Additionally, this script will pass the current working directory
-into ffmpeg. If you do not want it to do this, set the srcDir
-variable in the script.\n""")
+or by removing them entirely. If you do not want this, exit now.\n""")
 
         input("Please press enter to proceed.")
         p = pathlib.Path()
@@ -120,7 +115,9 @@ variable in the script.\n""")
                     break
                 else:
                     print('\nPlease enter y or n')
-        
+
+        self.srcDir = self.srcDir if r.endswith(os.path.sep) else self.srcDir + os.path.sep
+        self.destDir = self.destDir if r.endswith(os.path.sep) else self.destDir + os.path.sep
 
         input(f'Using srcDir: {self.srcDir}\n'\
              +f'Using destDir: {self.destDir}\n\n'\
@@ -307,7 +304,7 @@ def dirCheck(msg):
         r = str(input(msg))
         dirCheck = os.path.isdir(r)
         if dirCheck:
-            return r if r.endswith(os.path.sep) else r + os.path.sep
+            return r
         print('\nNot a valid dir. Try again.')
 
 
