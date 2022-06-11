@@ -23,7 +23,7 @@ can be found [here](https://kokomins.wordpress.com/2019/10/10/anime-encoding-gui
 ``animachine`` is a simple-to-use script that currently takes no arguments
 from the user. Simply run the script and it will walk you through the process 
 of setting up your directories and presets for use by the script. Feel free to
-customise the the encoding presets used by the script to your preference!
+customise the encoding presets used by the script to your preference!
 
 
 
