@@ -1,3 +1,24 @@
+#Copyright (c) 2022 Elizabeth Watson <lizzyrwatson1@gmail.com>
+
+#Permission is hereby granted, free of charge, to any person obtaining a copy
+#of this software and associated documentation files (the "Software"), to deal
+#in the Software without restriction, including without limitation the rights
+#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#copies of the Software, and to permit persons to whom the Software is
+#furnished to do so, subject to the following conditions:
+
+#The above copyright notice and this permission notice shall be included in all
+#copies or substantial portions of the Software.
+
+#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#SOFTWARE.
+
+import pathlib
 from progress import ProgressNotifier
 from pymediainfo import MediaInfo
 from tqdm import tqdm
@@ -10,8 +31,6 @@ import os
 class AnimeEncoder:
     def __init__(self):
         # Configuration Options
-        self.srcDir = '/Users/lizzy/Movies/Sailor_Moon/'
-        self.destDir = os.path.join(self.srcDir, 'Converted/')
         self.encodeOpts = ['crf=19:limit-sao:bframes=8:psy-rd=1:aq-mode=3',\
                            'crf=20:bframes=8:psy-rd=1:aq-mode=3',\
                            'crf=19:bframes=8:psy-rd=1:aq-mode=3:aq-strength=0.8:deblock=1,1',\
@@ -21,6 +40,8 @@ class AnimeEncoder:
                            'crf=14:preset=veryslow:no-sao:no-strong-intra-smoothing:bframes=8:'\
                            + 'psy-rd=2:psy-rdoq=1:aq-mode=3:deblock=-1,-1:ref=6',\
                            'crf=19']
+        self.srcDir = ''
+        self.destDir = ''
         self.preset = ''
         self.SNUM = 1
         self.srcExt = ''
@@ -48,13 +69,63 @@ class AnimeEncoder:
 """)
         print("""Welcome to Lizzy\'s portable x265 anime encoding convenience script.
 
+The concept for this script originated from Kokomin's "Anime on a Technical Level - 
+Anime Encoding Guide for x265 (HEVC) & AAC/OPUS (and Why to Never Use FLAC)", which
+can be found here: 
+
+https://kokomins.wordpress.com/2019/10/10/anime-encoding-guide-for-x265-and-why-to-never-use-flac/
+
 Before running, please ensure a version of ffmpeg with x265 is
 accessible in your system path. Please also ensure you have changed the
 destination directory before running the script.
 
+*** potentilly destructive actions ahead ***
+
+This script will sanitise the filenames in the source directory
+by replacing spaces and terminal-unfriendly characters with underscores
+or by removing them entirely. If you do not want this, exit now.
+
 Additionally, this script will pass the current working directory
 into ffmpeg. If you do not want it to do this, set the srcDir
 variable in the script.\n""")
+
+        input("Please press enter to proceed.")
+        p = pathlib.Path()
+        if self.srcDir == '' or os.path.isdir(self.srcDir) == False:
+            while True:
+                r = str(input('\nSource directory set to null or path invalid.\n'\
+                            f"[{p.absolute()}] will be used. Is this okay? [Y/n]: "))
+                if r in {'Y', 'y', ''}:
+                    self.srcDir = pathlib.Path(p.absolute())
+                    break
+                elif r in {'N', 'n'}:
+                    self.srcDir = dirCheck('\nPlease enter a new src dir:\n')
+                    break
+                else:
+                    print('\nPlease enter y or n')
+
+        if self.destDir == '' or os.path.isdir(self.destDir) == False:
+            while True:
+                r = str(input('\nThe dest dir variable has not been set. '\
+                            f'Would you like to\ncreate the Converted dir in {self.srcDir}? [Y/n]: '))
+                if r in {'Y', 'y', ''}:
+                    self.destDir = pathlib.Path(self.srcDir, 'Converted/')
+                    if os.path.isdir(self.destDir):
+                        break
+                    else:
+                        os.mkdir(self.destDir)
+                        break
+                elif r in {'N', 'n'}:
+                    self.destDir = dirCheck('\nPlease enter a new dest dir:\n')
+                    break
+                else:
+                    print('\nPlease enter y or n')
+        
+
+        input(f'Using srcDir: {self.srcDir}\n'\
+             +f'Using destDir: {self.destDir}\n\n'\
+             +'Ok to continue? [enter] If not, please exit and try again.') 
+
 
         for file in os.listdir(self.srcDir):
             if file.endswith(self.srcExt):
@@ -231,6 +302,15 @@ def getNum(m):
         if num > 0:
             return num
 
+def dirCheck(msg):
+    while True:
+        r = str(input(msg))
+        dirCheck = os.path.isdir(r)
+        if dirCheck:
+            return r if r.endswith(os.path.sep) else r + os.path.sep
+        print('\nNot a valid dir. Try again.')
+
+
 def main():
     try:
         with AnimeEncoder() as encoder:
@@ -238,9 +318,9 @@ def main():
     except KeyboardInterrupt:
         print('\nExiting.')
         return signal.SIGINT + 128 # POSIX Standard
-    """except Exception as err:
+    except Exception as err:
         print('Unexpected exception:', err)
-        return 1"""
+        return 1
 
 if __name__ == "__main__":
     main()
