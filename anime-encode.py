@@ -49,11 +49,14 @@ class AnimeEncoder:
         self.NUM = 1
         self.tempList = []
     
+
     def __exit__(self, exc_type, exc_value, traceback):
         pass
+    
 
     def __enter__(self):
         return self
+
 
     def run(self):
 
@@ -86,38 +89,37 @@ or by removing them entirely. If you do not want this, exit now.\n""")
 
         input("Please press enter to proceed.")
         p = pathlib.Path()
-        if self.srcDir == '' or os.path.isdir(self.srcDir) == False:
+        if self.srcDir == '' or os.path.isdir(self.srcDir) is False:
             while True:
                 r = str(input('\nSource directory set to null or path invalid.\n'\
                             f"[{p.absolute()}] will be used. Is this okay? [Y/n]: "))
                 if r in {'Y', 'y', ''}:
                     self.srcDir = pathlib.Path(p.absolute())
                     break
-                elif r in {'N', 'n'}:
+                if r in {'N', 'n'}:
                     self.srcDir = dirCheck('\nPlease enter a new src dir:\n')
                     break
                 else:
                     print('\nPlease enter y or n')
 
-        if self.destDir == '' or os.path.isdir(self.destDir) == False:
+        if self.destDir == '' or os.path.isdir(self.destDir) is False:
             while True:
                 r = str(input('\nThe dest dir variable has not been set. '\
                             f'Would you like to\ncreate the Converted dir in {self.srcDir}? [Y/n]: '))
                 if r in {'Y', 'y', ''}:
-                    self.destDir = pathlib.Path(self.srcDir, 'Converted/')
+                    self.destDir = os.path.join(self.srcDir, 'Converted/')
                     if os.path.isdir(self.destDir):
                         break
-                    else:
-                        os.mkdir(self.destDir)
-                        break
+                    os.mkdir(self.destDir)
+                    break
                 elif r in {'N', 'n'}:
                     self.destDir = dirCheck('\nPlease enter a new dest dir:\n')
                     break
                 else:
                     print('\nPlease enter y or n')
 
-        self.srcDir = self.srcDir if r.endswith(os.path.sep) else self.srcDir + os.path.sep
-        self.destDir = self.destDir if r.endswith(os.path.sep) else self.destDir + os.path.sep
+        self.srcDir = self.srcDir if self.srcDir.endswith(os.path.sep) else self.srcDir + os.path.sep
+        self.destDir = self.destDir if self.destDir.endswith(os.path.sep) else self.destDir + os.path.sep
 
         input(f'Using srcDir: {self.srcDir}\n'\
              +f'Using destDir: {self.destDir}\n\n'\
@@ -133,8 +135,6 @@ or by removing them entirely. If you do not want this, exit now.\n""")
             if file.endswith(self.srcExt):
                 filename = file
                 break
-            else:
-                continue
         
         print('\nSelect your preset preference:\n\n'\
         +  'A. Settings to rule them all:\n\n'\
@@ -246,15 +246,17 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                                     + f'{OUTNAME}.{self.destExt}'], stderr=subprocess.PIPE)
                     while True:
                         out = p.stderr.read(1)
-                        if out == b"" and p.poll() != None:
+                        if out == b"" and p.poll() is not None:
                             break
                         if out != b"":
                             notifier(out)
-                    if onemin == True:
+                    if onemin:
                         break
-                    NUM += 1
+                    self.NUM += 1
+
 
     def checkSubs(self, file):
+        self.media_info = MediaInfo.to_data(MediaInfo.parse(self.srcDir + file))
         self.tempList = []
         for tempTrack in self.media_info['tracks']:
             if tempTrack['track_type'] == 'Text':
@@ -280,14 +282,14 @@ def getContainer(m):
         cont = input(m)
         if cont in valCont:
             return cont
-        else:
-            print("\nInvalid. Supported containers are: ")
-            for i in range(len(valCont)): print(valCont[i])
-            continue
+        print("\nInvalid. Supported containers are: ")
+        for i in enumerate(valCont): print(valCont[i])
+
 
 def getValidFilenames(s):
-        s = str(s).strip().replace(' ', '_')
-        return re.sub(r'(?u)[^-\w.]', '', s)
+    s = str(s).strip().replace(' ', '_')
+    return re.sub(r'(?u)[^-\w.]', '', s)
+
 
 def getNum(m):
     while True:
@@ -298,6 +300,7 @@ def getNum(m):
             print('must be int')
         if num > 0:
             return num
+
 
 def dirCheck(msg):
     while True:
@@ -318,6 +321,7 @@ def main():
     except Exception as err:
         print('Unexpected exception:', err)
         return 1
+
 
 if __name__ == "__main__":
     main()
