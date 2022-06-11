@@ -19,7 +19,7 @@
 #SOFTWARE.
 
 import pathlib
-from progress import ProgressNotifier
+from ffpb import ProgressNotifier
 from pymediainfo import MediaInfo
 from tqdm import tqdm
 import subprocess
@@ -118,8 +118,8 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 else:
                     print('\nPlease enter y or n')
 
-        self.srcDir = self.srcDir if self.srcDir.endswith(os.path.sep) else self.srcDir + os.path.sep
-        self.destDir = self.destDir if self.destDir.endswith(os.path.sep) else self.destDir + os.path.sep
+        self.srcDir = self.srcDir if str(self.srcDir).endswith(os.path.sep) else str(self.srcDir) + os.path.sep
+        self.destDir = self.destDir if str(self.destDir).endswith(os.path.sep) else str(self.destDir) + os.path.sep
 
         input(f'Using srcDir: {self.srcDir}\n'\
              +f'Using destDir: {self.destDir}\n\n'\
