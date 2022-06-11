@@ -1,4 +1,4 @@
-# Lizzy's Anime
+# Lizzy's Animachine
 
 _Probably highly unreliable. Use this at your own expense. lol._
 
