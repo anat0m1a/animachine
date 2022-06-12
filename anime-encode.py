@@ -47,7 +47,7 @@ class AnimeEncoder:
         self.srcExt = ''
         self.destExt = ''
         self.NUM = 1
-        self.tempList = []
+        self.subsList = []
     
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -125,17 +125,6 @@ or by removing them entirely. If you do not want this, exit now.\n""")
         input(f'Using srcDir: {self.srcDir}\n'\
              +f'Using destDir: {self.destDir}\n\n'\
              +'Ok to continue? [enter] If not, please exit and try again.') 
-
-
-        for file in os.listdir(self.srcDir):
-            if file.endswith(self.srcExt):
-                os.rename(self.srcDir + file, self.srcDir + getValidFilenames(file))
-        
-        filename = ''
-        for file in os.listdir(self.srcDir):
-            if file.endswith(self.srcExt):
-                filename = file
-                break
         
         print('\nSelect your preset preference:\n\n'\
         +  'A. Settings to rule them all:\n\n'\
@@ -171,42 +160,58 @@ or by removing them entirely. If you do not want this, exit now.\n""")
         if self.destExt == '':
             self.destExt = getContainer('\nPlease enter an output container: ')
 
-        media_info = MediaInfo.parse(self.srcDir + filename)
-        self.media_info = MediaInfo.to_data(media_info)
+        for file in os.listdir(self.srcDir):
+            if file.endswith(self.srcExt):
+                os.rename(self.srcDir + file, self.srcDir + getValidFilenames(file))
+        
+        self.filename = ''
+        for file in sorted(os.listdir(self.srcDir)):
+            if file.endswith(self.srcExt):
+                self.filename = file
+                break
 
-        for tempTrack in self.media_info['tracks']:
-            if tempTrack['track_type'] == 'Text':
-                self.tempList.append(tempTrack) 
-                print(f"{len(self.tempList)}) {tempTrack['format']} ({tempTrack['language']}, SUBTITLE "\
-                        f"........... {tempTrack['language']}  - {tempTrack['title']}")
+        self.getSubs()
+        for tempTrack in range(len(self.subsList)):
+            self.langTrack = self.subsList[tempTrack].get('language')
+            self.titleTrack = self.subsList[tempTrack].get('title')
+            print(f"{tempTrack + 1}) {self.subsList[tempTrack]['format']} "\
+                        f"({self.subsList[tempTrack]['language'] if self.langTrack else '[no language detected]'},"\
+                        f"SUBTITLE ........... {self.subsList[tempTrack]['language']} - "\
+                        f"{self.subsList[tempTrack]['title'] if self.titleTrack else '[no title detected]'}")
 
         # To-do: merge sub selection and audio track selection into one function or code seg.
         self.subindex = -1
         while self.subindex == -1:
             try:
                 self.subindex = int(input('\nPlease enter an index for the subtitle '\
-                        + f'track you wish to use (0 for no subs) [0-{str(len(self.tempList))}]: '))
-                if self.subindex > len(self.tempList) or self.subindex < 0:
+                        + f'track you wish to use (0 for no subs) [0-{str(len(self.subsList))}]: '))
+                if self.subindex > len(self.subsList) or self.subindex < 0:
                     print("\nPlease input a valid value.")
                     self.subindex = -1
             except ValueError:
                 print("Please enter an int.")
 
-        self.language = self.tempList[self.subindex-1]['language']
-        self.title = self.tempList[self.subindex-1]['title']
-
+        # Set the language and title preferences going forwards
+        self.language = self.subsList[self.subindex-1]['language'] if self.langTrack else ''
+        self.title = self.subsList[self.subindex-1]['title'] if self.titleTrack else ''
+        i = 0
         for tempTrack in self.media_info['tracks']:
+            self.langTrack = tempTrack.get('language')
+            self.titleTrack =tempTrack.get('title')
             if tempTrack['track_type'] == 'Audio':
-                self.tempList.append(tempTrack) 
-                print(f"{len(self.tempList)}) {tempTrack['format']} ({tempTrack['language']}, SUBTITLE "\
-                        f"........... {tempTrack['language']}  - {tempTrack['title']}")
+                i+=1
+                self.subsList.append(tempTrack) 
+                print(f"{i}) {tempTrack['format']} "\
+                        f"({tempTrack['language'] if self.langTrack else '[no language detected]'},"\
+                        f" AUDIO ........... {tempTrack['language']} - "\
+                        f"{tempTrack['title'] if self.titleTrack else '[no title detected]'}")
 
         self.audioindex = -1
         while self.audioindex == -1:
             try:
                 self.audioindex = int(input('\nPlease enter an index for the audio '\
                     + 'track you wish to use: ')) - 1
-                if self.audioindex > len(self.tempList)-1 or self.audioindex < 0:
+                if self.audioindex > len(self.subsList)-1 or self.audioindex < 0:
                     print("\nPlease input a value in the valid range.")
                     self.audioindex = -1
             except ValueError:
@@ -222,7 +227,7 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 S = 'S' + str(self.SNUM).zfill(2) if self.SNUM < 10 else 'S' + str(self.SNUM)
                 E = 'E' + str(self.NUM).zfill(2) if self.NUM < 10 else 'E' + str(self.NUM)
                 OUTNAME = S + E
-                self.checkSubs(file)
+                self.checkSubs()
                 file = self.srcDir + file
 
                 # Defines the two valid sub options (covers ASS, PGS and UTF-8)
@@ -231,9 +236,9 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 #   1. if onemin is true for test encode
                 #   2. which subtitle command to use and select from above
                 
-                with ProgressNotifier (file=sys.stderr, encoding=None, tqdm=tqdm, \
-                                       source=OUTNAME) as notifier:
-
+                
+                with ProgressNotifier (file=sys.stderr, encoding=None, tqdm=tqdm,
+                                    source=OUTNAME) as notifier:
                     p = subprocess.Popen(['ffmpeg', *(['-t', '00:01:00'] if onemin else []), \
                                     '-i', file, '-c:v', 'libx265', '-x265-params', \
                                     self.encodeOpts[self.preset], '-preset', 'slow', \
@@ -241,40 +246,52 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                                     + str(self.subindex-1), '-map', '0:v:0'] \
                                     if self.subtype == 1 else (['-filter_complex', \
                                     f'[0:v][0:s:{str(self.subindex-1)}]overlay[v]', \
-                                    'map', '[v]'] if self.subtype == 2 else [])), \
+                                    '-map', '[v]'] if self.subtype == 2 else [])), \
                                     '-c:a', 'libopus', '-b:a', '96k', '-ac', '2', '-map', \
                                     f'0:a:{str(self.audioindex)}', f'{str(self.destDir)}' \
-                                    + f'{OUTNAME}.{self.destExt}'], stderr=subprocess.PIPE)
+                                    + f'{OUTNAME}.{self.destExt}'], stderr = subprocess.PIPE)
                     while True:
                         out = p.stderr.read(1)
                         if out == b"" and p.poll() is not None:
                             break
                         if out != b"":
                             notifier(out)
-                    if onemin:
-                        break
-                    self.NUM += 1
+                if onemin:
+                    break
+                self.NUM += 1
 
-
-    def checkSubs(self, file):
-        self.media_info = MediaInfo.to_data(MediaInfo.parse(self.srcDir + file))
-        self.tempList = []
+    def getSubs(self):
+        self.media_info = MediaInfo.to_data(MediaInfo.parse(self.srcDir + self.filename))
+        self.subsList = []
         for tempTrack in self.media_info['tracks']:
             if tempTrack['track_type'] == 'Text':
-                self.tempList.append(tempTrack) 
-                if self.language == tempTrack['language'] or self.title == tempTrack['title']:
-                    self.subindex = len(self.tempList)
+                self.subsList.append(tempTrack)
 
-        """to be updated in the future - this essentially prefers the title of the subs over the
-        language to ensure that regardless of the index of the subs, the most optimal subtitle
-        track is chosen based on the initial chosen index"""
 
-        if self.tempList[self.subindex-1]['format'] in {'ASS', 'UTF-8'}:
+    def checkSubs(self):
+        self.getSubs()
+
+        if self.subsList[self.subindex-1]['format'] in {'ASS', 'UTF-8'}:
             self.subtype = 1
-        elif self.tempList[self.subindex-1]['format'] == 'PGS':
+        elif self.subsList[self.subindex-1]['format'] == 'PGS':
             self.subtype = 2
         else:
-            print('error')
+            raise FormatError(self.filename, self.subsList[self.subindex-1]['format'])
+        
+        self.titleTrack = ''
+        self.langTrack = ''
+        for tempTrack in range(len(self.subsList)):
+            self.langTrack = self.subsList[tempTrack].get('language')
+            self.titleTrack = self.subsList[tempTrack].get('title')
+            if self.titleTrack:
+                if self.title == self.titleTrack:
+                    self.subindex = tempTrack + 1
+                    return
+            if self.langTrack:
+                if self.language == self.langTrack:
+                    self.subindex = tempTrack + 1
+                    return
+        raise FileMatchError(self.filename, self.title, self.language)
 
 
 def getContainer(m):
@@ -323,6 +340,24 @@ def main():
         print('Unexpected exception:', err)
         return 1
 
+class FileMatchError(Exception):
+    def __init__(self, f, title, language, *args):
+        super().__init__(args)
+        self.f = f
+        self.title = title
+        self.language = language
+
+    def __str__(self):
+        return f'The file {self.f} does not contain matching title and/or language tracks: [{self.title}] [{self.language}]'
+
+class FormatError(Exception):
+    def __init__(self, f, format, *args):
+        super().__init__(args)
+        self.f = f
+        self.format = format
+
+    def __str__(self):
+        return f'The file {self.f} contains an unsupported subtitle format: [{self.format}]'
 
 if __name__ == "__main__":
     main()
