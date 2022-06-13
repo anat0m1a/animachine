@@ -2,8 +2,6 @@
 
 _Probably highly unreliable. Use this at your own expense. lol._
 
-**Use with tmux or your favourite terminal multiplexer!!**
-
 On a more serious note, please use this script with the expectation 
 that manual script configuration might be necessary. Due to the way 
 some create .mkv files and other such containers read by mediainfo,
@@ -21,6 +19,8 @@ can be found [here](https://kokomins.wordpress.com/2019/10/10/anime-encoding-gui
 ![Example](https://github.com/lizzyrw/lizzyanime/blob/main/static/preview.png)
 
 ## Usage
+
+**Works best with tmux or your favourite terminal multiplexer!!**
 
 ``animachine`` is a simple-to-use script that currently takes no arguments
 from the user. Simply run the script and it will walk you through the process 
