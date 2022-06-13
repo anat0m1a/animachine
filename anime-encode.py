@@ -222,7 +222,7 @@ or by removing them entirely. If you do not want this, exit now.\n""")
         test = str(input('1 min dummy encode? [Y]/n '))
         if test in {'Y', 'y', ''}:
             onemin = True
-        for file in os.listdir(self.srcDir):
+        for file in sorted(os.listdir(self.srcDir)):
             if file.endswith(self.srcExt):
                 S = 'S' + str(self.SNUM).zfill(2) if self.SNUM < 10 else 'S' + str(self.SNUM)
                 E = 'E' + str(self.NUM).zfill(2) if self.NUM < 10 else 'E' + str(self.NUM)
@@ -239,7 +239,7 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 
                 with ProgressNotifier (file=sys.stderr, encoding=None, tqdm=tqdm,
                                     source=OUTNAME) as notifier:
-                    p = subprocess.Popen(['ffmpeg', *(['-t', '00:01:00'] if onemin else []), \
+                    p = subprocess.Popen(['ffmpeg', *(['-t', '00:03:00'] if onemin else []), \
                                     '-i', file, '-c:v', 'libx265', '-x265-params', \
                                     self.encodeOpts[self.preset], '-preset', 'slow', \
                                     *(['-vf', f'subtitles={file}:stream_index='\
