@@ -2,6 +2,8 @@
 
 _Probably highly unreliable. Use this at your own expense. lol._
 
+**Use with tmux or your favourite terminal multiplexer!!**
+
 On a more serious note, please use this script with the expectation 
 that manual script configuration might be necessary. Due to the way 
 some create .mkv files and other such containers read by mediainfo,
