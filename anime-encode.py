@@ -218,10 +218,10 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 print("Please input an integer.")
 
         OUTNAME = ''
-        onemin = False
-        test = str(input('1 min dummy encode? [Y]/n '))
+        testEncode = False
+        test = str(input('3 min dummy encode? [Y]/n '))
         if test in {'Y', 'y', ''}:
-            onemin = True
+            testEncode = True
         for file in sorted(os.listdir(self.srcDir)):
             if file.endswith(self.srcExt):
                 S = 'S' + str(self.SNUM).zfill(2) if self.SNUM < 10 else 'S' + str(self.SNUM)
@@ -229,17 +229,11 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 OUTNAME = S + E
                 self.checkSubs()
                 file = self.srcDir + file
-
-                # Defines the two valid sub options (covers ASS, PGS and UTF-8)
-
-                # Call ffmpeg and determine:
-                #   1. if onemin is true for test encode
-                #   2. which subtitle command to use and select from above
-                
                 
                 with ProgressNotifier (file=sys.stderr, encoding=None, tqdm=tqdm,
                                     source=OUTNAME) as notifier:
-                    p = subprocess.Popen(['ffmpeg', *(['-t', '00:03:00'] if onemin else []), \
+
+                    p = subprocess.Popen(['ffmpeg', *(['-t', '00:03:00'] if testEncode else []), \
                                     '-i', file, '-c:v', 'libx265', '-x265-params', \
                                     self.encodeOpts[self.preset], '-preset', 'slow', \
                                     *(['-vf', f'subtitles={file}:stream_index='\
@@ -250,13 +244,14 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                                     '-c:a', 'libopus', '-b:a', '96k', '-ac', '2', '-map', \
                                     f'0:a:{str(self.audioindex)}', f'{str(self.destDir)}' \
                                     + f'{OUTNAME}.{self.destExt}'], stderr = subprocess.PIPE)
+
                     while True:
                         out = p.stderr.read(1)
                         if out == b"" and p.poll() is not None:
                             break
                         if out != b"":
                             notifier(out)
-                if onemin:
+                if testEncode:
                     break
                 self.NUM += 1
 
