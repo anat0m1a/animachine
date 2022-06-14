@@ -39,7 +39,7 @@ class AnimeEncoder:
                            'crf=16:no-sao:bframes=8:psy-rd=1.5:psy-rdoq=2:aq-mode=3:ref=6:preset=slow',\
                            'crf=14:preset=veryslow:no-sao:no-strong-intra-smoothing:bframes=8:'\
                            + 'psy-rd=2:psy-rdoq=1:aq-mode=3:deblock=-1,-1:ref=6',\
-                           'aq-mode=3:strong-intra-smoothing:crf=17:preset=veryslow']
+                           'aq-mode=3:crf=17:preset=veryslow']
         self.srcDir = ''
         self.destDir = ''
         self.preset = ''
@@ -232,7 +232,7 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 
                 subprocess.Popen(['ffmpeg', '-y', *(['-t', '00:03:00'] if testEncode else []), \
                                     '-i', file, '-c:v', 'libx265', '-x265-params', \
-                                    f'\'{self.encodeOpts[self.preset]}\'', \
+                                    self.encodeOpts[self.preset], \
                                     *(['-vf', f'subtitles={file}:stream_index='\
                                     + str(self.subindex), '-map', '0:v:0'] \
                                     if self.subtype == 1 and self.subtype != 0 else (['-filter_complex', \
