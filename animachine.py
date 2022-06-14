@@ -31,15 +31,15 @@ import os
 class AnimeEncoder:
     def __init__(self):
         # Configuration Options
-        self.encodeOpts = ['crf=19:limit-sao:bframes=8:psy-rd=1:aq-mode=3:p=slow',\
-                           'crf=20:bframes=8:psy-rd=1:aq-mode=3:p=slow',\
-                           'crf=19:bframes=8:psy-rd=1:aq-mode=3:aq-strength=0.8:deblock=1,1:p=slow',\
-                           'crf=19:limit-sao:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8:p=slow',\
-                           'crf=19:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8:p=slow',\
-                           'crf=16:no-sao:bframes=8:psy-rd=1.5:psy-rdoq=2:aq-mode=3:ref=6:p=slow',\
-                           'crf=14:p=veryslow:no-sao:no-strong-intra-smoothing:bframes=8:'\
+        self.encodeOpts = ['crf=19:limit-sao:bframes=8:psy-rd=1:aq-mode=3',\
+                           'crf=20:bframes=8:psy-rd=1:aq-mode=3',\
+                           'crf=19:bframes=8:psy-rd=1:aq-mode=3:aq-strength=0.8:deblock=1,1',\
+                           'crf=19:limit-sao:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8',\
+                           'crf=19:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8',\
+                           'crf=16:no-sao:bframes=8:psy-rd=1.5:psy-rdoq=2:aq-mode=3:ref=6',\
+                           'crf=14:no-sao:no-strong-intra-smoothing:bframes=8:'\
                            + 'psy-rd=2:psy-rdoq=1:aq-mode=3:deblock=-1,-1:ref=6',\
-                           'aq-mode=3:crf=17:p=veryslow']
+                           'aq-mode=3:crf=17']
         self.srcDir = ''
         self.destDir = ''
         self.preset = ''
@@ -232,7 +232,7 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 
                 subprocess.Popen(['ffmpeg', '-y', *(['-t', '00:03:00'] if testEncode else []), \
                                     '-i', file, '-c:v', 'libx265', '-x265-params', \
-                                    self.encodeOpts[self.preset], \
+                                    self.encodeOpts[self.preset], '-preset veryslow', \
                                     *(['-vf', f'subtitles={file}:stream_index='\
                                     + str(self.subindex), '-map', '0:v:0'] \
                                     if self.subtype == 1 and self.subtype != 0 else (['-filter_complex', \
