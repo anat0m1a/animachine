@@ -286,7 +286,9 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 if self.language == self.langTrack:
                     self.subindex = tempTrack + 1
                     return
-        raise FileMatchError(self.filename, self.title, self.language)
+            if self.langTrack is False and self.titleTrack is False:
+                test = str(input('Cannot reliably track audio/sub tracks between files,'\
+                            'Continue anyway? [Y]/n '))
 
 
 def getContainer(m):
@@ -334,16 +336,6 @@ def main():
     except Exception as err:
         print('Unexpected exception:', err)
         return 1
-
-class FileMatchError(Exception):
-    def __init__(self, f, title, language, *args):
-        super().__init__(args)
-        self.f = f
-        self.title = title
-        self.language = language
-
-    def __str__(self):
-        return f'The file {self.f} does not contain matching title and/or language tracks: [{self.title}] [{self.language}]'
 
 class FormatError(Exception):
     def __init__(self, f, format, *args):
