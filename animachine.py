@@ -39,7 +39,7 @@ class AnimeEncoder:
                            'crf=16:no-sao:bframes=8:psy-rd=1.5:psy-rdoq=2:aq-mode=3:ref=6:preset=slow',\
                            'crf=14:preset=veryslow:no-sao:no-strong-intra-smoothing:bframes=8:'\
                            + 'psy-rd=2:psy-rdoq=1:aq-mode=3:deblock=-1,-1:ref=6',\
-                           'aq-mode=3:sao:strong-intra-smoothing:crf=17:preset=veryslow']
+                           'aq-mode=3:strong-intra-smoothing:crf=17:preset=veryslow']
         self.srcDir = ''
         self.destDir = ''
         self.preset = ''
