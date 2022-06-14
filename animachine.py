@@ -232,7 +232,7 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 
                 subprocess.Popen(['ffmpeg', '-y', *(['-t', '00:03:00'] if testEncode else []), \
                                     '-i', file, '-c:v', 'libx265', '-x265-params', \
-                                    self.encodeOpts[self.preset], '-preset veryslow', \
+                                    self.encodeOpts[self.preset], '--preset veryslow', \
                                     *(['-vf', f'subtitles={file}:stream_index='\
                                     + str(self.subindex), '-map', '0:v:0'] \
                                     if self.subtype == 1 and self.subtype != 0 else (['-filter_complex', \
