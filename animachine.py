@@ -146,7 +146,7 @@ or by removing them entirely. If you do not want this, exit now.\n""")
         # Get basic input from the user about the content
         while True:
             self.preset = int(input(f'Please select [1-{len(self.encodeOpts)}]: ')) - 1
-            if 1 <= self.preset <= len(self.encodeOpts):
+            if 0 <= self.preset <= len(self.encodeOpts):
                 break
             print('try again.')
 
@@ -230,27 +230,31 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 self.checkSubs()
                 file = self.srcDir + file
                 
-                with ProgressNotifier (file=sys.stderr, encoding=None, tqdm=tqdm,
-                                    source=OUTNAME) as notifier:
-
-                    p = subprocess.Popen(['ffmpeg', *(['-t', '00:03:00'] if testEncode else []), \
+                subprocess.Popen(['ffmpeg', '-y', *(['-t', '00:03:00'] if testEncode else []), \
                                     '-i', file, '-c:v', 'libx265', '-x265-params', \
                                     self.encodeOpts[self.preset], \
                                     *(['-vf', f'subtitles={file}:stream_index='\
-                                    + str(self.subindex-1), '-map', '0:v:0'] \
-                                    if self.subtype == 1 else (['-filter_complex', \
-                                    f'[0:v][0:s:{str(self.subindex-1)}]overlay[v]', \
-                                    '-map', '[v]'] if self.subtype == 2 else [])), \
+                                    + str(self.subindex), '-map', '0:v:0'] \
+                                    if self.subtype == 1 and self.subtype != 0 else (['-filter_complex', \
+                                    f'[0:v][0:s:{str(self.subindex)}]overlay[v]', \
+                                    '-map', '[v]'] if self.subtype == 2 and self.subindex != 0 else ['-map', '0:v:0'])), \
                                     '-c:a', 'libopus', '-b:a', '96k', '-ac', '2', '-map', \
                                     f'0:a:{str(self.audioindex)}', f'{str(self.destDir)}' \
-                                    + f'{OUTNAME}.{self.destExt}'], stderr = subprocess.PIPE)
+                                    + f'{OUTNAME}.{self.destExt}'])
+
+                """stderr = subprocess.PIPE"""
+
+                """with ProgressNotifier (file=sys.stderr, encoding=None, tqdm=tqdm,
+                                    source=OUTNAME) as notifier:
+
+                    p = 
 
                     while True:
                         out = p.stderr.read(1)
                         if out == b"" and p.poll() is not None:
                             break
                         if out != b"":
-                            notifier(out)
+                            notifier(out)"""
                 if testEncode:
                     break
                 self.NUM += 1
