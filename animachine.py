@@ -176,7 +176,7 @@ or by removing them entirely. If you do not want this, exit now.\n""")
             self.titleTrack = self.subsList[tempTrack].get('title')
             print(f"{tempTrack + 1}) {self.subsList[tempTrack]['format']} "\
                         f"({self.subsList[tempTrack]['language'] if self.langTrack else '[no language detected]'},"\
-                        f"SUBTITLE ........... {self.subsList[tempTrack]['language']} - "\
+                        f"SUBTITLE ........... {self.subsList[tempTrack]['language'] if self.langTrack else '[no language detected]'} - "\
                         f"{self.subsList[tempTrack]['title'] if self.titleTrack else '[no title detected]'}")
 
         # To-do: merge sub selection and audio track selection into one function or code seg.
