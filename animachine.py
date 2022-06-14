@@ -203,7 +203,7 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                 self.subsList.append(tempTrack) 
                 print(f"{i}) {tempTrack['format']} "\
                         f"({tempTrack['language'] if self.langTrack else '[no language detected]'},"\
-                        f" AUDIO ........... {tempTrack['language']} - "\
+                        f" AUDIO ........... {tempTrack['language'] if self.langTrack else '[no language detected]'} - "\
                         f"{tempTrack['title'] if self.titleTrack else '[no title detected]'}")
 
         self.audioindex = -1
