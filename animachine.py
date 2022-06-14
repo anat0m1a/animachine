@@ -235,7 +235,7 @@ or by removing them entirely. If you do not want this, exit now.\n""")
                                     self.encodeOpts[self.preset], '-preset', 'veryslow', \
                                     *(['-vf', f'subtitles={file}:stream_index='\
                                     + str(self.subindex), '-map', '0:v:0'] \
-                                    if self.subtype == 1 and self.subtype != 0 else (['-filter_complex', \
+                                    if self.subtype == 1 and self.subindex != 0 else (['-filter_complex', \
                                     f'[0:v][0:s:{str(self.subindex)}]overlay[v]', \
                                     '-map', '[v]'] if self.subtype == 2 and self.subindex != 0 else ['-map', '0:v:0'])), \
                                     '-c:a', 'libopus', '-b:a', '96k', '-ac', '2', '-map', \
