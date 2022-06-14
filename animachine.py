@@ -31,15 +31,15 @@ import os
 class AnimeEncoder:
     def __init__(self):
         # Configuration Options
-        self.encodeOpts = ['crf=19:limit-sao:bframes=8:psy-rd=1:aq-mode=3:preset=slow',\
-                           'crf=20:bframes=8:psy-rd=1:aq-mode=3:preset=slow',\
-                           'crf=19:bframes=8:psy-rd=1:aq-mode=3:aq-strength=0.8:deblock=1,1:preset=slow',\
-                           'crf=19:limit-sao:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8:preset=slow',\
-                           'crf=19:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8:preset=slow',\
-                           'crf=16:no-sao:bframes=8:psy-rd=1.5:psy-rdoq=2:aq-mode=3:ref=6:preset=slow',\
-                           'crf=14:preset=veryslow:no-sao:no-strong-intra-smoothing:bframes=8:'\
+        self.encodeOpts = ['crf=19:limit-sao:bframes=8:psy-rd=1:aq-mode=3:p=slow',\
+                           'crf=20:bframes=8:psy-rd=1:aq-mode=3:p=slow',\
+                           'crf=19:bframes=8:psy-rd=1:aq-mode=3:aq-strength=0.8:deblock=1,1:p=slow',\
+                           'crf=19:limit-sao:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8:p=slow',\
+                           'crf=19:bframes=8:psy-rd=1:psy-rdoq=1:aq-mode=3:qcomp=0.8:p=slow',\
+                           'crf=16:no-sao:bframes=8:psy-rd=1.5:psy-rdoq=2:aq-mode=3:ref=6:p=slow',\
+                           'crf=14:p=veryslow:no-sao:no-strong-intra-smoothing:bframes=8:'\
                            + 'psy-rd=2:psy-rdoq=1:aq-mode=3:deblock=-1,-1:ref=6',\
-                           'aq-mode=3:crf=17:preset=veryslow']
+                           'aq-mode=3:crf=17:p=veryslow']
         self.srcDir = ''
         self.destDir = ''
         self.preset = ''
